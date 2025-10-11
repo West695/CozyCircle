@@ -1,0 +1,22 @@
+name: Backend CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env || true
+      - run: php artisan key:generate
+      - run: php -r "if(!is_dir('database')) mkdir('database'); if(!file_exists('database/database.sqlite')) touch('database/database.sqlite');"
+      - run: php artisan migrate --force
+      - run: ./vendor/bin/pest || ./vendor/bin/phpunit
