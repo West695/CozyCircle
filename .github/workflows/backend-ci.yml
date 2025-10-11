@@ -1,4 +1,5 @@
 name: Backend CI
+
 on: [push, pull_request]
 
 jobs:
@@ -7,16 +8,40 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
     steps:
       - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring
+          extensions: mbstring, sqlite3
           coverage: none
-      - run: composer install --no-interaction --prefer-dist
-      - run: cp .env.example .env || true
-      - run: php artisan key:generate
-      - run: php -r "if(!is_dir('database')) mkdir('database'); if(!file_exists('database/database.sqlite')) touch('database/database.sqlite');"
-      - run: php artisan migrate --force
-      - run: ./vendor/bin/pest || ./vendor/bin/phpunit
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Create .env file
+        run: |
+          cp .env.example .env || true
+          echo "APP_KEY=" >> .env
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Prepare SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+          php artisan migrate --force
+
+      - name: Run tests
+        run: |
+          if [ -f ./vendor/bin/pest ]; then
+            ./vendor/bin/pest
+          else
+            ./vendor/bin/phpunit
+          fi
