@@ -17,3 +17,15 @@ Route::get('/signup', function () {
 Route::get('/forum', function () {
     return view('forum');
 })->name('forum');
+
+Route::get('/community', function () {
+    return view('community');
+})->name('community');
+
+Route::get('/register', function () {
+    return view('register');
+})->name('register');
+
+Route::get('/password/reset', function () {
+    return view('password.request');
+})->name('password.request');
