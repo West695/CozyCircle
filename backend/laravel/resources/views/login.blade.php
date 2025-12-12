@@ -1,87 +1,58 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign In - CozyCircle</title>
-</head>
-<body class="bg-white dark:bg-gray-900 min-h-screen flex flex-col">
-    @include('components.navbar')
+@extends('layouts.layout')
+
+@section('content')
     
-    <main class="flex-1 flex items-center justify-center p-6">
-        <div class="w-full max-w-md">
-            <!-- Card -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
-                <p class="text-gray-600 dark:text-gray-400 mb-8">Sign in to your CozyCircle account</p>
+    <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back!</h2>
 
-                <form class="space-y-5">
-                    <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Email Address
-                        </label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            placeholder="you@example.com"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                        >
-                    </div>
+    <form method="POST" action="{{ route('login') }}">
+        @csrf 
 
-                    <!-- Password -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Password
-                        </label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            placeholder="••••••••"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                        >
-                    </div>
-
-                    <!-- Remember & Forgot -->
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
-                        </label>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Forgot password?</a>
-                    </div>
-
-                    <!-- Sign In Button -->
-                    <button type="submit" class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition transform hover:scale-105 active:scale-95">
-                        Sign In
-                    </button>
-                </form>
-
-                <!-- Divider -->
-                <div class="my-6 flex items-center">
-                    <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
-                    <span class="px-3 text-sm text-gray-500">or</span>
-                    <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
-                </div>
-
-                <!-- Social Login -->
-                <button class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    <span>Sign in with Google</span>
-                </button>
-
-                <!-- Signup Link -->
-                <p class="text-center mt-6 text-gray-600 dark:text-gray-400">
-                    Don't have an account?
-                    <a href="{{ route('signup') }}" class="text-blue-600 hover:text-blue-700 font-semibold">Sign up</a>
-                </p>
-            </div>
+        <div class="mb-4">
+            <label class="block font-bold text-sm mb-1" for="email">Email</label>
+            <input id="email" 
+                   type="email" 
+                   name="email" 
+                   value="{{ old('email') }}"
+                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-black focus:ring-0 outline-none transition-colors"
+                   required autofocus>
+            @error('email')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
         </div>
-    </main>
-</body>
-</html>
+
+        <div class="mb-6">
+            <label class="block font-bold text-sm mb-1" for="password">Password</label>
+            <input id="password" 
+                   type="password" 
+                   name="password" 
+                   class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-black focus:ring-0 outline-none transition-colors"
+                   required>
+            @error('password')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="flex items-center justify-between mb-6">
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="remember" class="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500">
+                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+            </label>
+            
+            <a href="{{ route('password.request') }}" class="text-sm text-purple-700 hover:underline font-semibold">
+                Forgot Password?
+            </a>
+        </div>
+
+        <button type="submit" class="w-full bg-black text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-transform active:scale-95 shadow-lg">
+            Log In
+        </button>
+    </form>
+
+    <div class="mt-6 text-center text-sm">
+        Don't have an account? 
+        <a href="{{ route('register') }}" class="font-bold underline decoration-jive-yellow decoration-4 underline-offset-2 hover:text-purple-700">
+            Sign Up
+        </a>
+    </div>
+
+@endsection
