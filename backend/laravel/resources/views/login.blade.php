@@ -4,7 +4,7 @@
     
     <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back!</h2>
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login.attempt') }}">
         @csrf 
 
         <div class="mb-4">

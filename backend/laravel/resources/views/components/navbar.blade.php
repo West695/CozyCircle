@@ -19,16 +19,33 @@
                 <a href="{{ route('community') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                     Community
                 </a>
+                @auth
+                <a href="{{ route('profile') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    Profile
+                </a>
+                @endauth
             </div>
 
             <!-- Auth Buttons -->
             <div class="flex items-center space-x-3">
+                @guest
                 <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
                     Sign In
                 </a>
                 <a href="{{ route('signup') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg transition transform hover:scale-105">
                     Join Now
                 </a>
+                @endguest
+
+                @auth
+                <a href="{{ route('profile') }}" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
+                    {{ Auth::user()->name ?? 'Profile' }}
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition">Logout</button>
+                </form>
+                @endauth
             </div>
         </div>
     </div>
