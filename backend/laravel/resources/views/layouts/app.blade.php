@@ -33,12 +33,28 @@
     </style>
     @stack('styles')
 </head>
-<body>
+</script>
+<body class="bg-jive-purple min-h-screen relative font-sans flex flex-col">
+    <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-30">
+        <div class="border border-gray-500 rounded-full w-[400px] h-[400px] absolute"></div>
+        <div class="border border-gray-500 rounded-full w-[700px] h-[700px] absolute"></div>
+        <div class="border border-gray-500 rounded-full w-[1100px] h-[1100px] absolute"></div>
+    </div>
+
+    <div class="absolute top-20 left-20 bg-white p-2 rounded-full shadow-sm hidden md:block">
+        <span>❤️</span>
+    </div>
+    <div class="absolute bottom-20 right-20 bg-white p-2 rounded-full shadow-sm hidden md:block">
+        <span>🎸</span>
+    </div>
+
     @include('components.navbar')
 
-    <main>
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
         @yield('content')
     </main>
+
+    @include('components.footer')
 
     @stack('scripts')
 </body>
