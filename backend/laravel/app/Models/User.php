@@ -43,4 +43,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Post::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    // Provide a `name` attribute for compatibility with views that expect `name`
+    public function getNameAttribute()
+    {
+        return $this->attributes['username'] ?? null;
+    }
 }

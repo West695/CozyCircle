@@ -1,3 +1,128 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="max-w-6xl mx-auto px-6 py-12">
+    <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Community Forum</h1>
+            <p class="text-lg text-gray-600 mb-2">Join discussions, ask questions, and connect with other members</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="openModal('newPostModal')" class="px-5 py-2 rounded-full bg-jive-purple text-white font-bold border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:scale-105 transition">Start a Discussion</button>
+        </div>
+    </div>
+
+    @if(session('success'))
+        <div class="mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded">{{ session('success') }}</div>
+    @endif
+
+    <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <div class="space-y-4">
+                @forelse($posts as $post)
+                <article class="bg-white border-2 border-black rounded-2xl p-6 shadow-[6px_6px_0_rgba(0,0,0,1)]">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-sm px-2 py-1 rounded-full bg-white border-2 border-black text-sm font-semibold">{{ $post->category->name ?? 'General' }}</span>
+                                <h3 class="text-xl font-bold mt-1">{{ $post->title ?? 'Untitled' }}</h3>
+                            </div>
+                            <p class="text-gray-700">{{ Str::limit($post->content, 280) }}</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-sm text-gray-600">By {{ $post->user->name ?? 'Guest' }}</div>
+                            <div class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 border-t border-black/10 pt-4 space-y-3">
+                        @forelse($post->comments as $comment)
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                <div class="text-sm text-gray-700">{{ $comment->user->name ?? 'Guest' }} <span class="text-xs text-gray-500">• {{ $comment->created_at->diffForHumans() }}</span></div>
+                                <div class="mt-1 text-gray-600">{{ $comment->content }}</div>
+                            </div>
+                        @empty
+                            <div class="text-gray-500 text-sm">No comments yet — be first to comment.</div>
+                        @endforelse
+                    </div>
+
+                    <div class="mt-4">
+                        @auth
+                        <form method="POST" action="{{ route('posts.comments', $post) }}">
+                            @csrf
+                            <div class="flex items-start gap-3">
+                                <textarea name="content" required rows="2" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="Add a comment..."></textarea>
+                                <div>
+                                    <button type="submit" class="px-4 py-2 rounded-full bg-jive-purple text-white border-2 border-black font-semibold shadow-[3px_3px_0_rgba(0,0,0,1)]">Comment</button>
+                                </div>
+                            </div>
+                        </form>
+                        @else
+                            <div class="text-sm text-gray-500">Please <a href="{{ route('login') }}" class="underline font-semibold">sign in</a> to comment.</div>
+                        @endauth
+                    </div>
+                </article>
+                @empty
+                    <div class="text-gray-500">No discussions yet.</div>
+                @endforelse
+            </div>
+        </div>
+
+        <aside class="space-y-4">
+            <div class="bg-white border-2 border-black rounded-2xl p-4 shadow-[6px_6px_0_rgba(0,0,0,1)]">
+                <h3 class="text-lg font-bold mb-2">Categories</h3>
+                <ul class="space-y-2">
+                    @forelse($categories as $category)
+                        <li><a href="#" class="flex items-center gap-3"><span class="px-2 py-1 rounded-full bg-white border-2 border-black">{{ $category->icon ?? '📁' }}</span>{{ $category->name }}</a></li>
+                    @empty
+                        <li>No categories yet.</li>
+                    @endforelse
+                </ul>
+            </div>
+
+            <div class="bg-white border-2 border-black rounded-2xl p-4 shadow-[6px_6px_0_rgba(0,0,0,1)]">
+                <h3 class="text-lg font-bold mb-2">Active Members</h3>
+                <p class="text-sm text-gray-500">See who's engaging with the community.</p>
+            </div>
+        </aside>
+    </div>
+
+    <!-- New Post Modal (form) -->
+    <div id="newPostModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <form method="POST" action="{{ route('posts.store') }}" class="p-6">
+                @csrf
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold">Start a Discussion</h2>
+                    <button type="button" onclick="closeModal('newPostModal')" class="text-gray-500">Close</button>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-2">Title</label>
+                    <input type="text" name="title" required class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="What's the discussion about?">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <select name="category_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">General</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <textarea name="content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Add more details..."></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" class="px-4 py-2 rounded-lg border border-black" onclick="closeModal('newPostModal')">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-jive-purple text-white border-2 border-black font-bold">Post Discussion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
