@@ -126,7 +126,7 @@
                                         {{ Str::limit($post->content, 150) }}
                                     </div>
                                     <div class="post-footer">
-                                        <span class="post-author">By {{ $post->user->name ?? 'Anonymous' }}</span>
+                                        <span class="post-author">By @if($post->user)<a href="#" class="user-link" data-user-id="{{ $post->user->id }}">{{ $post->user->name }}</a>@else Anonymous @endif</span>
                                         <span class="post-date">{{ $post->created_at->diffForHumans() ?? 'Recently' }}</span>
                                     </div>
                                     <a href="#" data-post-id="{{ $post->id }}" class="btn btn-small read-more-link">Read More</a>
@@ -174,7 +174,7 @@
                         <h2>Active Members</h2>
                         <div class="members-list">
                             @forelse($activeMembers as $member)
-                                <div class="member-item">
+                                <a href="#" class="user-link member-item flex items-center gap-3" data-user-id="{{ $member->id }}">
                                     <div class="member-avatar">
                                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ $member->name }}" alt="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
                                     </div>
@@ -182,7 +182,7 @@
                                         <p class="member-name">{{ $member->name }}</p>
                                         <span class="online-status">{{ $member->posts->count() + $member->comments->count() }} contribution{{ ($member->posts->count() + $member->comments->count()) !== 1 ? 's' : '' }}</span>
                                     </div>
-                                </div>
+                                </a>
                             @empty
                                 <p class="text-muted">No active members yet.</p>
                             @endforelse
@@ -376,5 +376,8 @@
     .empty-state { text-align:center; padding:40px; color: #777; }
     .text-muted { color: #777; }
 </style>
+
+
+
 </div>
 @endsection

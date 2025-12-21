@@ -71,7 +71,7 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 id="postModalTitle" class="text-2xl font-bold">Post Title</h2>
-                        <div class="text-sm text-gray-600" id="postModalMeta">By Author • <span id="postModalTime">just now</span></div>
+                        <div class="text-sm text-gray-600" id="postModalMeta">By <span id="postModalAuthor"></span> • <span id="postModalTime">just now</span></div>
                     </div>
                     <div>
                         <button onclick="closePostModal()" class="text-gray-500">Close</button>
@@ -113,14 +113,24 @@
                 .then(post => {
                     document.getElementById('postModalTitle').textContent = post.title || 'Untitled';
                     document.getElementById('postModalContent').textContent = post.content || '';
-                    document.getElementById('postModalMeta').innerHTML = `By ${post.user.name} • ${post.created_at}`;
+
+                    // Author with avatar and clickable name
+                    const authorHtml = post.user && post.user.id ?
+                        `<a href="#" class="user-link inline-flex items-center gap-2" data-user-id="${post.user.id}"><img src="${post.user.avatar || ''}" class="w-8 h-8 rounded-full" alt="avatar"> <span class="font-semibold">${post.user.name}</span></a>` :
+                        (post.user ? `${post.user.name}` : 'Guest');
+                    document.getElementById('postModalAuthor').innerHTML = authorHtml;
+                    document.getElementById('postModalTime').textContent = post.created_at || '';
 
                     const commentsEl = document.getElementById('postModalComments');
                     commentsEl.innerHTML = '';
                     post.comments.forEach(c => {
                         const div = document.createElement('div');
-                        div.className = 'p-2 border rounded';
-                        div.innerHTML = `<div class="text-sm font-semibold">${c.user.name} <span class="text-xs text-gray-500">• ${c.created_at}</span></div><div class="mt-1 text-gray-700">${c.content}</div>`;
+                        div.className = 'p-2 border rounded flex items-start gap-3';
+
+                        const avatar = c.user && c.user.avatar ? `<img src="${c.user.avatar}" class="w-8 h-8 rounded-full" alt="avatar">` : `<div class="w-8 h-8 rounded-full bg-gray-200"></div>`;
+                        const userName = c.user && c.user.id ? `<a href="#" class="user-link font-semibold" data-user-id="${c.user.id}">${c.user.name}</a>` : (c.user ? c.user.name : 'Guest');
+
+                        div.innerHTML = `${avatar}<div><div class="text-sm">${userName} <span class="text-xs text-gray-500">• ${c.created_at}</span></div><div class="mt-1 text-gray-700">${c.content}</div></div>`;
                         commentsEl.appendChild(div);
                     });
 
@@ -196,6 +206,8 @@
         });
     </script>
     @endunless
+
+    @include('components.user-modal')
 
     @stack('scripts')
 </body>

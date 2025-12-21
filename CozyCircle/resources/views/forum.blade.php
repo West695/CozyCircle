@@ -40,7 +40,7 @@
                             <p class="text-gray-700">{{ Str::limit($post->content, 280) }}</p>
                         </div>
                         <div class="text-right ml-4">
-                            <div class="text-sm text-gray-600">By {{ $post->user->name ?? 'Guest' }}</div>
+                            <div class="text-sm text-gray-600">By @if($post->user)<a href="#" class="user-link font-semibold" data-user-id="{{ $post->user->id }}">{{ $post->user->name }}</a>@else Guest @endif</div>
                             <div class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</div>
                         </div>
                         <div class="ml-4 flex items-start gap-2">
@@ -57,7 +57,7 @@
                     <div class="mt-4 border-t border-black/10 pt-4 space-y-3">
                         @forelse($post->comments as $comment)
                             <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                <div class="text-sm text-gray-700">{{ $comment->user->name ?? 'Guest' }} <span class="text-xs text-gray-500">• {{ $comment->created_at->diffForHumans() }}</span></div>
+                                <div class="text-sm text-gray-700">@if($comment->user)<a href="#" class="user-link font-semibold" data-user-id="{{ $comment->user->id }}">{{ $comment->user->name }}</a>@else Guest @endif <span class="text-xs text-gray-500">• {{ $comment->created_at->diffForHumans() }}</span></div>
                                 <div class="mt-1 text-gray-600">{{ $comment->content }}</div>
                             </div>
                         @empty
@@ -112,13 +112,13 @@
                     <div class="space-y-2">
                         <p class="text-sm text-gray-500 mb-3">{{ $activeMembers->count() }} member{{ $activeMembers->count() !== 1 ? 's' : '' }} active this week</p>
                         @foreach($activeMembers as $member)
-                            <div class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-200">
+                            <a href="#" class="user-link flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-200" data-user-id="{{ $member->id }}">
                                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ $member->name }}" alt="avatar" class="w-8 h-8 rounded-full">
                                 <div class="flex-1">
                                     <p class="text-sm font-semibold">{{ $member->name }}</p>
                                     <p class="text-xs text-gray-500">{{ $member->posts->count() + $member->comments->count() }} contribution{{ ($member->posts->count() + $member->comments->count()) !== 1 ? 's' : '' }}</p>
                                 </div>
-                            </div>
+                            </a>
                         @endforeach
                     </div>
                 @else
@@ -210,5 +210,7 @@
     @if(request()->query('compose'))
         <script>openModal('newPostModal');</script>
     @endif
+
+
 </body>
 </html>

@@ -20,12 +20,14 @@ class User extends Authenticatable
         'password',
         'dob',
         'is_admin',
+        'is_banned',
         'bio',
         'hobbies',
     ];
 
     protected $casts = [
         'is_admin' => 'boolean',
+        'is_banned' => 'boolean',
         'hobbies' => 'array',
     ];
 

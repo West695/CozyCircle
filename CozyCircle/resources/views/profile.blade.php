@@ -16,17 +16,33 @@
             </div>
 
             <div class="flex-1 text-center md:text-left z-10">
-                <h1 class="text-3xl font-black tracking-tight">{{ $user->name ?? 'User' }}</h1>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl font-black tracking-tight">{{ $user->name ?? 'User' }}</h1>
+                    @if($user->is_banned)
+                        <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm font-bold border border-red-300">BANNED</span>
+                    @endif
+                </div>
                 <p class="text-purple-700 font-bold mb-2">{{ $user->email ?? '' }}</p>
                 <p class="text-gray-600 text-sm max-w-md mx-auto md:mx-0">
                     {{ $user->bio ?? 'Passionate about community building and clean design.' }}
                 </p>
             </div>
 
-            <div class="z-10">
+            <div class="z-10 flex items-center gap-3">
                 <a href="{{ route('profile.edit') }}" class="inline-block bg-black text-white px-6 py-2 rounded-full font-bold border-2 border-transparent hover:bg-white hover:text-black hover:border-black transition-colors shadow-md">
                     Edit Profile
                 </a>
+
+                @auth
+                    @if(auth()->user()->is_admin && auth()->id() !== $user->id)
+                        <form method="POST" action="{{ route('users.toggleBan', $user) }}" onsubmit="return confirm('{{ $user->is_banned ? 'Unban this user?' : 'Ban this user?' }}');">
+                            @csrf
+                            <button type="submit" class="inline-block px-4 py-2 rounded-full font-bold border-2 {{ $user->is_banned ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300' }}">
+                                {{ $user->is_banned ? 'Unban User' : 'Ban User' }}
+                            </button>
+                        </form>
+                    @endif
+                @endauth
             </div>
         </div>
 

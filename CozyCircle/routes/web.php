@@ -59,6 +59,10 @@ Route::post('/posts', function (Request $request) {
         return redirect()->route('login');
     }
 
+    if (Auth::user()->is_banned) {
+        return back()->with('error', 'Your account has been banned and cannot create posts.');
+    }
+
     $data = $request->validate([
         'title' => ['required', 'string', 'max:255'],
         'content' => ['nullable', 'string'],
@@ -91,6 +95,11 @@ Route::post('/posts/{post}/comments', function (Request $request, Post $post) {
     if (!Auth::check()) {
         return redirect()->route('login');
     }
+
+    if (Auth::user()->is_banned) {
+        return back()->with('error', 'Your account has been banned and cannot comment.');
+    }
+
     $data = $request->validate([
         'content' => ['required', 'string', 'max:2000'],
     ]);
@@ -120,14 +129,22 @@ Route::get('/posts/{post}/json', function (Post $post) {
         'title' => $post->title,
         'content' => $post->content,
         'category' => $post->category ? ['id' => $post->category->id, 'name' => $post->category->name] : null,
-        'user' => ['name' => $post->user->name ?? 'Guest'],
+        'user' => [
+            'id' => $post->user->id ?? null,
+            'name' => $post->user->name ?? 'Guest',
+            'avatar' => isset($post->user->name) ? "https://api.dicebear.com/7.x/avataaars/svg?seed={$post->user->name}" : null,
+        ],
         'created_at' => $post->created_at->diffForHumans(),
         'comments' => $post->comments->map(function ($c) {
             return [
                 'id' => $c->id,
                 'content' => $c->content,
                 'created_at' => $c->created_at->diffForHumans(),
-                'user' => ['name' => $c->user->name ?? 'Guest']
+                'user' => [
+                    'id' => $c->user->id ?? null,
+                    'name' => $c->user->name ?? 'Guest',
+                    'avatar' => isset($c->user->name) ? "https://api.dicebear.com/7.x/avataaars/svg?seed={$c->user->name}" : null,
+                ],
             ];
         })->values(),
     ];
@@ -144,6 +161,31 @@ Route::delete('/posts/{post}', function (Post $post) {
     return redirect()->route('forum')->with('success', 'Discussion deleted.');
 })->name('posts.destroy');
 
+// Admin: toggle ban/unban user
+Route::post('/users/{user}/ban', function (Request $request, User $user) {
+    if (!Auth::check() || !Auth::user()->is_admin) {
+        abort(403);
+    }
+
+    if (Auth::id() === $user->id) {
+        return back()->with('error', 'You cannot ban yourself.');
+    }
+
+    $user->update(['is_banned' => !$user->is_banned]);
+
+    return back()->with('success', $user->is_banned ? 'User banned.' : 'User unbanned.');
+})->name('users.toggleBan');
+Route::get('/users/{user}/json', function (User $user) {
+    return response()->json([
+        'id' => $user->id,
+        'username' => $user->name ?? null,
+        'email' => $user->email ?? null,
+        'avatar' => "https://api.dicebear.com/7.x/avataaars/svg?seed={$user->name}",
+        'hobbies' => $user->hobbies ?? [],
+        'is_banned' => (bool) $user->is_banned,
+        'posts_count' => $user->posts()->count(),
+    ]);
+})->name('users.json');
 Route::get('/community', function () {
     $featuredPosts = Post::with(['user', 'category'])->latest()->take(3)->get();
     $categories = Category::all();
