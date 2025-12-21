@@ -47,7 +47,7 @@
                             @forelse($categories ?? [] as $category)
                                 <li>
                                     <a href="{{ url('/forum') }}?category={{ $category->id }}" class="category-link">
-                                        <span class="category-icon">📁</span>
+                                        <span class="category-icon">{{ $category->icon ?? '📁' }}</span>
                                         <span class="category-name">{{ $category->name }}</span>
                                     </a>
                                 </li>
